@@ -21,13 +21,21 @@ export async function getBudget(monthDate) {
  * Upsert budget
  */
 export async function upsertBudget(monthDate, amount) {
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("You must be logged in to set budgets");
+  }
+
   const { error } = await supabase
     .from("budgets")
     .upsert({
       month: monthDate,
-      amount
+      amount,
+      user_id: user.id
     }, {
-      onConflict: 'month'  // Specify the unique constraint column
+      onConflict: 'month,user_id'  // Updated to include user_id in conflict resolution
     });
 
   if (error) throw error;

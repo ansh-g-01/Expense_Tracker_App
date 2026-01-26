@@ -17,9 +17,19 @@ export async function getTags() {
  * Create tag
  */
 export async function createTag(payload) {
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("You must be logged in to create tags");
+  }
+
   const { error } = await supabase
     .from("tags")
-    .insert(payload);
+    .insert({
+      ...payload,
+      user_id: user.id
+    });
 
   if (error) throw error;
 }

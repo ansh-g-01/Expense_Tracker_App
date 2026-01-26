@@ -29,9 +29,19 @@ export async function getExpensesByMonth(startISO, endISO) {
  * Add expense
  */
 export async function addExpense(payload) {
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("You must be logged in to add expenses");
+  }
+
   const { error } = await supabase
     .from("expenses")
-    .insert(payload);
+    .insert({
+      ...payload,
+      user_id: user.id
+    });
 
   if (error) throw error;
 }

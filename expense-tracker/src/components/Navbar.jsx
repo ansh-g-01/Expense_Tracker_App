@@ -1,40 +1,67 @@
-import { NavLink } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Navbar() {
-  const base =
-    "px-4 py-2 rounded-md text-sm font-medium transition";
-  const active = "bg-black text-white";
-  const inactive = "text-gray-600 hover:bg-gray-100";
+  const location = useLocation();
+  const { signOut, user } = useAuth();
+
+  const isActive = (path) => location.pathname === path;
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
 
   return (
-    <nav className="flex gap-2 border-b p-4">
-      <NavLink
-        to="/"
-        end
-        className={({ isActive }) =>
-          `${base} ${isActive ? active : inactive}`
-        }
-      >
-        Home
-      </NavLink>
+    <nav className="bg-white border-b">
+      <div className="max-w-5xl mx-auto px-4 py-4">
+        <div className="flex justify-between items-center">
+          <div className="flex gap-6">
+            <Link
+              to="/"
+              className={`font-medium ${isActive("/") ? "text-black" : "text-gray-500 hover:text-black"
+                }`}
+            >
+              Home
+            </Link>
+            <Link
+              to="/tags"
+              className={`font-medium ${isActive("/tags")
+                  ? "text-black"
+                  : "text-gray-500 hover:text-black"
+                }`}
+            >
+              Tags
+            </Link>
+            <Link
+              to="/stats"
+              className={`font-medium ${isActive("/stats")
+                  ? "text-black"
+                  : "text-gray-500 hover:text-black"
+                }`}
+            >
+              Stats
+            </Link>
+          </div>
 
-      <NavLink
-        to="/tags"
-        className={({ isActive }) =>
-          `${base} ${isActive ? active : inactive}`
-        }
-      >
-        Tags
-      </NavLink>
-
-      <NavLink
-        to="/stats"
-        className={({ isActive }) =>
-          `${base} ${isActive ? active : inactive}`
-        }
-      >
-        Stats
-      </NavLink>
+          <div className="flex items-center gap-4">
+            {user && (
+              <>
+                <span className="text-sm text-gray-600">{user.email}</span>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-gray-600 hover:text-black"
+                >
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     </nav>
   );
 }
